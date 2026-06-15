@@ -25,6 +25,17 @@
 		<div class="content">
 			<?php echo nl2br($board['content']); ?>
 		</div>
+
+		<?php
+		$file = $conn->query("SELECT * FROM attachments WHERE post_id = $id")->fetch_array();
+		if($file): ?>
+		<div class="file">
+			<p>📎 <a href="download.php?id=<?php echo $file['id']; ?>">
+				<?php echo $file['original_name']; ?>
+ 			</a> </p>
+		</div>
+		<?php endif; ?>
+
 		<div class="viewButton">
 			<ul>
 				<li><button onclick="location.href='index.php'">List</button></li>
@@ -47,8 +58,11 @@
 			<div class="comment">
 				<p><b><?php echo $comment['username']; ?></b> | <?php echo $comment['created_at'] ?></p>
 				<p><?php echo nl2br($comment['content']); ?></p>
-				<?php if (isset($_SESSION['id']) && $comment['author_id'] == $_SESSION['id']) { ?>
-				<button onclick="location.href='delete_comment.php?id=<?php echo $comment['id']; ?>&post_id=<?php echo $id; ?>'">Delete</button>
+				<div style="text-align:right; display:flex; justify-content:flex-end; gap:5px; margin:0;">
+					<?php if (isset($_SESSION['id']) && $comment['author_id'] == $_SESSION['id']) { ?>
+					<button style="margin:0;" onclick="location.href='modify_comment.php?id=<?php echo $comment['id']; ?>&post_id=<?php echo $id; ?>'">Modify</button>
+					<button style="margin:0;" onclick="location.href='delete_comment.php?id=<?php echo $comment['id']; ?>&post_id=<?php echo $id; ?>'">Delete</button>
+				</div>
 				<?php } ?>
 			</div>
 			<?php } ?>
@@ -62,7 +76,7 @@
 			</form>
 		</div>
 		<?php } else { ?>
-		<p><a href="login.php">Login</a>to write a comment.</p>
+		<p><a href="login.php">Login</a> to write a comment.</p>
 		<?php } ?>
 	</div>
 </body>

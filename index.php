@@ -10,7 +10,7 @@ include 'db.php';
 </head>
 
 <body>
-<div class ="loginButton">
+<div class="loginButton">
 	<?php
 	if (isset($_SESSION) === false) {session_start();}
 	if (isset($_SESSION['id']) === false) {
@@ -25,9 +25,19 @@ include 'db.php';
 	}
 	?>
 </div>
-<div class ="index">
+<div class="index">
 	<h1>My Notebook</h1>
 	<h4>you can write whatever you want</h4>
+
+<form method="GET" action="index.php" style="text-align:center; margin:10px 0;">
+	<input type="text" name="search" placeholder="Search title..." value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>" style="padding: 5px; font-size:14px;">
+	<select name="order" style="padding: 5px; font-size:14px;">
+		<option value="desc" <?php echo (!isset($_GET['order']) || $_GET['order'] === 'desc') ? 'selected' : ''; ?>>Newest</option>
+		<option value="asc" <?php echo (isset($_GET['order']) && $_GET['order'] === 'asc') ? 'selected' : ''; ?>>Oldest</option>
+	</select>
+	<button type="submit" style="margin:0; padding:5px 10px;">Search</button>
+</form>
+
 	<button onclick="writePost()">new!</button>
 	<table>
 		<tr>
@@ -39,7 +49,10 @@ include 'db.php';
 		<?php
 			$list_num = 10;
 			$page_num = 10;
-			$num = $conn->query('SELECT * FROM posts')->num_rows;
+			$search = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';
+			$order = (isset($_GET['order']) && $_GET['order'] === 'asc') ? 'ASC' : 'DESC';
+			$where = $search ? "WHERE title LIKE '%$search%'" : '';
+			$num = $conn->query('SELECT * FROM posts $where')->num_rows;
 			$page = isset($_GET['page']) ? $_GET['page'] : 1; //made pagenation(e.g. page 1, 2 ...
 			$total_page = ceil($num/$page_num);
 			$total_block = ceil($total_page/$page_num);
@@ -53,7 +66,7 @@ include 'db.php';
 				$e_page = $total_page;
 			}
 			$start = ($page - 1) * $list_num;
-			$sql = $conn->query("SELECT * FROM posts ORDER BY id DESC LIMIT $start, $list_num");
+			$sql = $conn->query("SELECT * FROM posts $where ORDER BY id $order LIMIT $start, $list_num");
 			while ($row = $sql->fetch_array()) {
 				echo '<tr>';
 				echo '<td>'. $row['id']. '</td>';
