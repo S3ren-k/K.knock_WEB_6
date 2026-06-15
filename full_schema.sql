@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.45, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.46, for Linux (x86_64)
 --
 -- Host: localhost    Database: first_web
 -- ------------------------------------------------------
--- Server version	8.0.45-0ubuntu0.24.04.1
+-- Server version	8.0.46-0ubuntu0.24.04.2
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -14,6 +14,61 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `attachments`
+--
+
+DROP TABLE IF EXISTS `attachments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `attachments` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `post_id` int NOT NULL,
+  `original_name` varchar(255) NOT NULL,
+  `stored_path` varchar(500) NOT NULL,
+  `size_bytes` bigint DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `post_id` (`post_id`),
+  CONSTRAINT `attachments_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `attachments`
+--
+
+LOCK TABLES `attachments` WRITE;
+/*!40000 ALTER TABLE `attachments` DISABLE KEYS */;
+INSERT INTO `attachments` VALUES (1,8,'Screenshot 2026-06-15 at 10.20.58.png','uploads/6a2f65a253d2f_Screenshot 2026-06-15 at 10.20.58.png',13623,'2026-06-15 02:38:26');
+/*!40000 ALTER TABLE `attachments` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `boards`
+--
+
+DROP TABLE IF EXISTS `boards`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `boards` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `boards`
+--
+
+LOCK TABLES `boards` WRITE;
+/*!40000 ALTER TABLE `boards` DISABLE KEYS */;
+INSERT INTO `boards` VALUES (1,'FRI3NDS','find your friends!'),(2,'Community','share your experiences!');
+/*!40000 ALTER TABLE `boards` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `comments`
@@ -33,7 +88,7 @@ CREATE TABLE `comments` (
   KEY `author_id` (`author_id`),
   CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`),
   CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,6 +97,7 @@ CREATE TABLE `comments` (
 
 LOCK TABLES `comments` WRITE;
 /*!40000 ALTER TABLE `comments` DISABLE KEYS */;
+INSERT INTO `comments` VALUES (11,6,3,'','2026-06-15 01:12:56'),(13,8,3,'와!!','2026-06-15 02:38:59'),(14,8,3,'파일 다운로드 할 수 있나요?','2026-06-15 02:49:07'),(15,8,3,'공백은 허용이 안댐','2026-06-15 02:53:49');
 /*!40000 ALTER TABLE `comments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -59,10 +115,13 @@ CREATE TABLE `posts` (
   `author_id` int NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `board_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `author_id` (`author_id`),
-  CONSTRAINT `posts_ibfk_1` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `board_id` (`board_id`),
+  CONSTRAINT `posts_ibfk_1` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `posts_ibfk_2` FOREIGN KEY (`board_id`) REFERENCES `boards` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -71,7 +130,7 @@ CREATE TABLE `posts` (
 
 LOCK TABLES `posts` WRITE;
 /*!40000 ALTER TABLE `posts` DISABLE KEYS */;
-INSERT INTO `posts` VALUES (6,'new post','new content',2,'2026-05-21 04:05:05','2026-05-21 04:05:05'),(7,'aasdfa','adfasdf',3,'2026-06-14 13:14:32','2026-06-14 13:14:32');
+INSERT INTO `posts` VALUES (6,'new post','new content',2,'2026-05-21 04:05:05','2026-06-15 08:32:14',1),(7,'aasdfa','adfasdf',3,'2026-06-14 13:14:32','2026-06-15 08:32:14',1),(8,'upload test','testeset',3,'2026-06-15 02:38:26','2026-06-15 08:32:14',1),(9,'업로드','ㅎㅇ',3,'2026-06-15 03:35:48','2026-06-15 08:32:14',1),(10,'HI','새로운 탭 테스트',3,'2026-06-15 10:17:47','2026-06-15 10:17:47',2);
 /*!40000 ALTER TABLE `posts` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -111,4 +170,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-06-14 13:27:04
+-- Dump completed on 2026-06-15 13:21:03
