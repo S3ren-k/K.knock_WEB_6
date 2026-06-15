@@ -30,7 +30,11 @@ include 'db.php';
 	<h4>you can write whatever you want</h4>
 
 <form method="GET" action="index.php" style="text-align:center; margin:10px 0;">
-	<input type="text" name="search" placeholder="Search title..." value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>" style="padding: 5px; font-size:14px;">
+	<select name="type" style="padding:5px; font-size:14px;">
+		<option value="title" <?php echo (!isset($_GET['type']) || $_GET['type'] === 'title') ? 'selected' : ''; ?>>Title</option>
+		<option value="author" <?php echo (isset($_GET['type']) && $_GET['type'] === 'author') ? 'selected' : ''; ?>>Author</option>
+	</select>
+	<input type="text" name="search" placeholder="Search something..." value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>" style="padding: 5px; font-size:14px;">
 	<select name="order" style="padding: 5px; font-size:14px;">
 		<option value="desc" <?php echo (!isset($_GET['order']) || $_GET['order'] === 'desc') ? 'selected' : ''; ?>>Newest</option>
 		<option value="asc" <?php echo (isset($_GET['order']) && $_GET['order'] === 'asc') ? 'selected' : ''; ?>>Oldest</option>
@@ -51,8 +55,17 @@ include 'db.php';
 			$page_num = 10;
 			$search = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';
 			$order = (isset($_GET['order']) && $_GET['order'] === 'asc') ? 'ASC' : 'DESC';
-			$where = $search ? "WHERE title LIKE '%$search%'" : '';
-			$num = $conn->query('SELECT * FROM posts $where')->num_rows;
+			$type = isset($_GET['type']) ? $_GET['type'] : 'title';
+			if ($search) {
+				if($type === 'author') {
+					$where = "JOIN users ON posts.author_id = users.id WHERE users.username LIKE '%$search%'";
+				} else {
+					$where = "WHERE title LIKE '%$search%'";
+				}
+			} else {
+				$where = '';
+			}
+			$num = $conn->query("SELECT posts.* FROM posts $where")->num_rows;
 			$page = isset($_GET['page']) ? $_GET['page'] : 1; //made pagenation(e.g. page 1, 2 ...
 			$total_page = ceil($num/$page_num);
 			$total_block = ceil($total_page/$page_num);
@@ -66,7 +79,7 @@ include 'db.php';
 				$e_page = $total_page;
 			}
 			$start = ($page - 1) * $list_num;
-			$sql = $conn->query("SELECT * FROM posts $where ORDER BY id $order LIMIT $start, $list_num");
+			$sql = $conn->query("SELECT posts.* FROM posts $where ORDER BY posts.id $order LIMIT $start, $list_num");
 			while ($row = $sql->fetch_array()) {
 				echo '<tr>';
 				echo '<td>'. $row['id']. '</td>';
