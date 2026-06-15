@@ -23,7 +23,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     	if ($is_match_pw) {
         	$_SESSION['id'] = $user['id'];
         	$_SESSION['username'] = $user['username'];
-        	echo "<script>alert('Logged in successfully'); location.href='index.php';</script>";
+        	echo "<script>alert('Logged in successfully'); location.href='home.php';</script>";
     	} else {
         	echo "<script>alert('Name & Password are not correct'); location.href='login.php';</script>";
     	}

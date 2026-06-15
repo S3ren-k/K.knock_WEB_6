@@ -10,6 +10,7 @@
 		$id = $_GET['id'];
 		$sql = $conn->query("SELECT * FROM posts WHERE id = $id");
 		$board = $sql->fetch_array();
+		$board_id = $board['board_id'];
 	?>
 	<div class="view">
 		<h2><?php echo $board['title']; ?></h2>
@@ -38,7 +39,7 @@
 
 		<div class="viewButton">
 			<ul>
-				<li><button onclick="location.href='index.php'">List</button></li>
+				<li><button onclick="location.href='index.php?board=<?php echo $board_id; ?>'">List</button></li>
 				<?php
 					if($board['author_id'] == $_SESSION['id']) { ?>
 				<li><button onclick="location.href='modify.php?id=<?= $board['id']; ?>'">Modify</button></li>

@@ -1,14 +1,15 @@
 <?php
 	include 'db.php';
+	$board_id = isset($_GET['board']) ? (int)$_GET['board'] : 1;
 	if($_SERVER['REQUEST_METHOD'] === 'POST') {
-
+		$board_id = (int)$_POST['board_id'];
 		$title = trim($_POST['title']);
 		$content = trim($_POST['content']);
 
 		if(empty($title) || empty($content)) {
 			echo "empty title & content are not allowed";
 		} else {
-			$sql = "INSERT INTO posts (title, content, author_id) VALUES ('$title', '$content', '$_SESSION[id]')";
+			$sql = "INSERT INTO posts (title, content, author_id, board_id) VALUES ('$title', '$content', '{$_SESSION['id']}', $board_id)";
 			$conn->query($sql);
 			$post_id = $conn->insert_id;
 
@@ -23,7 +24,7 @@
                                 	$conn->query("INSERT INTO attachments (post_id, original_name, stored_path, size_bytes) VALUES ($post_id, '$orig', '$path', $size_bytes)");
                         	}
                 	}
-			header("Location: index.php");
+			header("Location: index.php?board=$board_id");
 			exit();
 		}
 	}
@@ -32,7 +33,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<link rel="stylesheet" type="/text/css" href="style.css">
+	<link rel="stylesheet" type="text/css" href="style.css">
 	<title>Write Your Idea</title>
 </head>
 <body>
@@ -40,6 +41,7 @@
 	<h1>write something</h1>
 	<hr/>
 	<form method="POST" action="write.php" enctype="multipart/form-data">
+	<input type="hidden" name="board_id" value="<?php echo $board_id; ?>">
 	<table class="writing">
 	<tr>
 		<th width="50">Title</th>
@@ -55,7 +57,7 @@
 	</tr>
 	</table>
 	<ul>
-		<li><button type="button" onclick="location.href='index.php'">Back</button></li>
+		<li><button type="button" onclick="location.href='index.php?board=<?php echo $board_id; ?>'">Back</button></li>
 		<li><input class="button" type="submit" value="Submitted!"></li>
 	</ul>
 	</form>

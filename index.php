@@ -1,5 +1,7 @@
 <?php
 include 'db.php';
+$board_id = isset($_GET['board']) ? (int)$_GET['board'] : 1;
+$board_info = $conn->query("SELECT * FROM boards WHERE id = $board_id")->fetch_array();
 ?>
 <!DOCTYPE html>
 <html>
@@ -26,10 +28,11 @@ include 'db.php';
 	?>
 </div>
 <div class="index">
-	<h1>My Notebook</h1>
-	<h4>you can write whatever you want</h4>
+	<h1><?php echo $board_info['name']; ?></h1>
+	<h4><?php echo $board_info['description']; ?></h4>
 
 <form method="GET" action="index.php" style="text-align:center; margin:10px 0;">
+	<input type="hidden" name="board" value="<?php echo $board_id; ?>">
 	<select name="type" style="padding:5px; font-size:14px;">
 		<option value="title" <?php echo (!isset($_GET['type']) || $_GET['type'] === 'title') ? 'selected' : ''; ?>>Title</option>
 		<option value="author" <?php echo (isset($_GET['type']) && $_GET['type'] === 'author') ? 'selected' : ''; ?>>Author</option>
@@ -58,12 +61,12 @@ include 'db.php';
 			$type = isset($_GET['type']) ? $_GET['type'] : 'title';
 			if ($search) {
 				if($type === 'author') {
-					$where = "JOIN users ON posts.author_id = users.id WHERE users.username LIKE '%$search%'";
+					$where = "JOIN users ON posts.author_id = users.id WHERE posts.board_id = $board_id AND users.username LIKE '%$search%'";
 				} else {
-					$where = "WHERE title LIKE '%$search%'";
+					$where = "WHERE posts.board_id = $board_id AND title LIKE '%$search%'";
 				}
 			} else {
-				$where = '';
+				$where = "WHERE posts.board_id = $board_id";
 			}
 			$num = $conn->query("SELECT posts.* FROM posts $where")->num_rows;
 			$page = isset($_GET['page']) ? $_GET['page'] : 1; //made pagenation(e.g. page 1, 2 ...
@@ -95,24 +98,28 @@ include 'db.php';
 	</table>
 <div class="page">
 	<?php
+		$extra = '&board=' . $board_id;
+		if($search) $extra .= '&search=' . urlencode($search);
+		if($order) $extra .= '&order=' . strtolower($order);
+
 		if($page<=1) {
 			echo '<span class="fo_re">Previous</span>';
 		} else {
-			echo '<a href="index.php?page=1">Previous</a>';
+			echo '<a href="index.php?page=1' . $extra . '">Previous</a>';
 		}
 
 		for($print_page = $s_page; $print_page <= $e_page; $print_page++) {
 			if($print_page == $page) {
 				echo'<strong>' . $print_page . '</strong>';
 			} else {
-				echo '<a href="index.php?page=' . $print_page . '">' . $print_page . '</a>';
+				echo '<a href="index.php?page=' . $print_page . $extra . '">' . $print_page . '</a>';
 			}
 		}
 
 		if($page >= $total_page) {
 			echo '<span class="fo_re">Next</span>';
 		} else {
-			echo '<a href="index.php?page='. ($page + 1) .'">Next</a>';
+			echo '<a href="index.php?page='. ($page + 1) . $extra . '">Next</a>';
 		}
 	?>
 </div>
@@ -124,7 +131,7 @@ include 'db.php';
 		alert('please log in or register account');
 		location.href='login.php';
 		<?php } else { ?>
-		location.href='write.php';
+		location.href='write.php?board=<?php echo $board_id; ?>';
 		<?php } ?>
 	}
 </script>
